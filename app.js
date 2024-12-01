@@ -29,7 +29,7 @@ const Mycontract = require("./APIConsumer.json");
 const contractABI = Mycontract.abi;
 
 const contractAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
-const rpcEndpoint = "https://127.0.0.1:8545";
+const rpcEndpoint = "http://127.0.0.1:8545";
 
 const app = express();
 
@@ -40,11 +40,12 @@ const contract = new web3.eth.Contract(contractABI, contractAddress);
 app.use(express.json());
 
 app.get("/team", async (req,res) => {
-    const team = await contract.methods.requestVolumeData().call();
+    const team = await contract.methods.returnInputString().call();
     res.json({team});
 });
 
 app.listen(3000, ()=>{
+    //sds
     console.log("Server running");
 });
 

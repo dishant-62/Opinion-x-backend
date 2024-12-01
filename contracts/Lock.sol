@@ -199,4 +199,9 @@ contract APIConsumer is ChainlinkClient, ConfirmedOwner {
         LinkTokenInterface link = LinkTokenInterface(_chainlinkTokenAddress());
         require(link.transfer(msg.sender, link.balanceOf(address(this))), "Unable to transfer LINK");
     }
+
+    function returnInputString() public pure returns (string memory) {
+    return "Rathi";
+}
+
 }
