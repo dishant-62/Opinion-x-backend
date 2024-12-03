@@ -1,5 +1,117 @@
+
+// pragma solidity ^0.8.7;
+
+// import {Chainlink, ChainlinkClient} from "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
+// import {ConfirmedOwner} from "@chainlink/contracts/src/v0.8/shared/access/ConfirmedOwner.sol";
+// import {LinkTokenInterface} from "@chainlink/contracts/src/v0.8/shared/interfaces/LinkTokenInterface.sol";
+
+// /**
+//  * Request testnet LINK and ETH here: https://faucets.chain.link/
+//  * Find information on LINK Token Contracts and get the latest ETH and LINK faucets here: https://docs.chain.link/docs/link-token-contracts/
+//  */
+
+// /**
+//  * THIS IS AN EXAMPLE CONTRACT WHICH USES HARDCODED VALUES FOR CLARITY.
+//  * THIS EXAMPLE USES UN-AUDITED CODE.
+//  * DO NOT USE THIS CODE IN PRODUCTION.
+//  */
+
+// contract APIConsumer is ChainlinkClient, ConfirmedOwner {
+//     using Chainlink for Chainlink.Request;
+
+//     uint256 public volume;
+//     bytes32 private jobId;
+//     uint256 private fee;
+
+//     event RequestVolume(bytes32 indexed requestId, uint256 volume);
+
+//     /**
+//      * @notice Initialize the link token and target oracle
+//      *
+//      * Sepolia Testnet details:
+//      * Link Token: 0x779877A7B0D9E8603169DdbD7836e478b4624789
+//      * Oracle: 0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD (Chainlink DevRel)
+//      * jobId: ca98366cc7314957b8c012c72f05aeeb
+//      *
+//      */
+//     constructor() ConfirmedOwner(msg.sender) {
+//         _setChainlinkToken(0x779877A7B0D9E8603169DdbD7836e478b4624789);
+//         _setChainlinkOracle(0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD);
+//         jobId = "ca98366cc7314957b8c012c72f05aeeb";
+//         fee = (1 * LINK_DIVISIBILITY) / 10; // 0,1 * 10**18 (Varies by network and job)
+//     }
+
+//     /**
+//      * Create a Chainlink request to retrieve API response, find the target
+//      * data, then multiply by 1000000000000000000 (to remove decimal places from data).
+//      */
+//     function requestVolumeData() public returns (bytes32 requestId) {
+//         Chainlink.Request memory req = _buildChainlinkRequest(
+//             jobId,
+//             address(this),
+//             this.fulfill.selector
+//         );
+
+//         // Set the URL to perform the GET request on
+//         req._add(
+//             "get",
+//             "https://min-api.cryptocompare.com/data/pricemultifull?fsyms=ETH&tsyms=USD"
+//         );
+
+//         // Set the path to find the desired data in the API response, where the response format is:
+//         // {"RAW":
+//         //   {"ETH":
+//         //    {"USD":
+//         //     {
+//         //      "VOLUME24HOUR": xxx.xxx,
+//         //     }
+//         //    }
+//         //   }
+//         //  }
+//         // request.add("path", "RAW.ETH.USD.VOLUME24HOUR"); // Chainlink nodes prior to 1.0.0 support this format
+//         req._add("path", "RAW,ETH,USD,VOLUME24HOUR"); // Chainlink nodes 1.0.0 and later support this format
+
+//         // Multiply the result by 1000000000000000000 to remove decimals
+//         int256 timesAmount = 10 ** 18;
+//         req._addInt("times", timesAmount);
+
+//         // Sends the request
+//         return _sendChainlinkRequest(req, fee);
+//     }
+
+//     /**
+//      * Receive the response in the form of uint256
+//      */
+//     function fulfill(
+//         bytes32 _requestId,
+//         uint256 _volume
+//     ) public recordChainlinkFulfillment(_requestId) {
+//         emit RequestVolume(_requestId, _volume);
+//         volume = _volume;
+//     }
+
+//     /**
+//      * Allow withdraw of Link tokens from the contract
+//      */
+//     function withdrawLink() public onlyOwner {
+//         LinkTokenInterface link = LinkTokenInterface(_chainlinkTokenAddress());
+//         require(
+//             link.transfer(msg.sender, link.balanceOf(address(this))),
+//             "Unable to transfer"
+//         );
+//     }
+//     // contract SumCalculator {
+  
+//     function add(uint256 num1, uint256 num2) public pure returns (uint256) {
+//         return num1 + num2;
+//     }
+
+// }
+
+
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.7;
+
+ pragma solidity ^0.8.7;
 
 import {Chainlink, ChainlinkClient} from "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import {ConfirmedOwner} from "@chainlink/contracts/src/v0.8/shared/access/ConfirmedOwner.sol";
@@ -42,51 +154,127 @@ contract APIConsumer is ChainlinkClient, ConfirmedOwner {
     constructor() ConfirmedOwner(msg.sender){
         _setChainlinkToken(0x779877A7B0D9E8603169DdbD7836e478b4624789);
         _setChainlinkOracle(0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD);
-        jobId = "7d80a6386ef543a3abb52817f6707e3d"; // Example Job ID
-        fee = (1 * LINK_DIVISIBILITY) / 10; // 0.1 LINK (Varies by network and job)
+        jobId = "7d80a6386ef543a3abb52817f6707e3b"; // Example Job ID
+        // fee = (1 * LINK_DIVISIBILITY) / 10; // 0.1 LINK (Varies by network and job)
+        fee = 0;
     }
 
     /**
      * Request data from the dynamic API based on the provided URL pattern, parameters, and path.
      * This function is now flexible to handle dynamic URLs and paths.
      */
-    function requestVolumeData(
-        string memory apiUrl, 
-        string memory apiKey, 
-        string memory matchInfoValue,
-        string memory path 
-    ) public returns (bytes32 requestId) {
+    event DebugLog(string message, uint256 value);
+    // function requestVolumeData(
+    //     string memory apiUrl, 
+    //     string memory apiKey, 
+    //     string memory matchInfoValue,
+    //     string memory path 
+    // ) public returns (bytes32 requestId) {
 
-        string memory finalApiUrl = string(abi.encodePacked(apiUrl, "?apikey=", apiKey, "&id=", matchInfoValue));
+    //     string memory finalApiUrl = string(abi.encodePacked(apiUrl, "?apikey=", apiKey, "&id=", matchInfoValue));
+    //     emit DebugLog("Sending Chainlink request:", 0);
+    //     emit DebugLog("Job ID:", uint256(jobId)); 
+    //     emit DebugLog("Fee (in LINK):", fee);
+    //     Chainlink.Request memory req = _buildChainlinkRequt(
+    //         jobId,
+    //         address(this),
+    //         this.fulfill.selector
+        
 
-        Chainlink.Request memory req = _buildChainlinkRequest(
-            jobId,
-            address(this),
-            this.fulfill.selector
-        );
+        
+    //     );
 
-        req._add("get", finalApiUrl);
+    //     // req._add("get", finalApiUrl);
 
-        req._add("path", path); 
+    //     // req._add("path", path); 
+    //     req._add("get", "https://api.cricapi.com/v1/match_info?apikey=1a119783-131c-4e35-bfe2-00ba7f2d4f0e&id=43668401-454e-4844-995e-d591d1398cc7");
 
-        return _sendChainlinkRequest(req, fee);
+    //     req._add("path", "data,status");
+
+    //     return _sendChainlinkRequest(req, fee);
+    // }
+    // function checkLinkBalance() public view returns (uint256) {
+    // LinkTokenInterface link = LinkTokenInterface(_chainlinkTokenAddress());
+    // return link.balanceOf(address(this));
+// }
+function fulfill(bytes32 _requestId, string memory _response) public recordChainlinkFulfillment(_requestId) {
+    apiResponses[_requestId] = _response;
+
+    if (bytes(_response).length == 0) {
+        emit FulfillmentError(_requestId, "Empty response received from Chainlink");
+        return;
     }
 
+    emit RequestVolume(_requestId, _response);
+
+    if (_requestId == jobId) {
+        teamNameFromAPI = _response;
+        validateTeamSelection();
+    }
+}
+
+event FulfillmentError(bytes32 indexed requestId, string errorMessage);
+
+function requestVolumeData(
+    string memory apiUrl,
+    string memory apiKey,
+    string memory matchInfoValue,
+    string memory path
+) public returns (bytes32 requestId) {
+    require(bytes(apiUrl).length > 0, "API URL is required");
+    require(bytes(apiKey).length > 0, "API Key is required");
+    require(bytes(matchInfoValue).length > 0, "Match Info Value is required");
+    require(bytes(path).length > 0, "Path is required");
+
+    string memory finalApiUrl = string(abi.encodePacked(apiUrl, "?apikey=", apiKey, "&id=", matchInfoValue));
+    Chainlink.Request memory req = _buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
+
+    req._add("get", finalApiUrl);
+    req._add("path", path);
+
+    requestId = _sendChainlinkRequest(req, fee);
+    emit RequestSent(requestId, finalApiUrl, path);
+    return requestId;
+}
+
+event RequestSent(bytes32 indexed requestId, string apiUrl, string path);
     /**
      * Handle the response from the API and store it.
      * The requestId is used to map the response to the specific request.
      */
-    function fulfill(bytes32 _requestId, string memory _response) public recordChainlinkFulfillment(_requestId) {
-        apiResponses[_requestId] = _response; // Store the response for the corresponding requestId
+    // function fulfill(bytes32 _requestId, string memory _response) public recordChainlinkFulfillment(_requestId) {
+    //     apiResponses[_requestId] = _response; // Store the response for the corresponding requestId
 
-        emit RequestVolume(_requestId, _response);
+    //     emit RequestVolume(_requestId, _response);
         
-         if (_requestId == jobId) {
-            teamNameFromAPI = _response;  
-            validateTeamSelection();
-        }
-    }
+    //      if (_requestId == jobId) {
+    //         teamNameFromAPI = _response;  
+    //         validateTeamSelection();
+    //     }
+    // }
+//     function fulfill(bytes32 _requestId, string memory _response) public recordChainlinkFulfillment(_requestId) {
 
+//     emit DebugLog("fulfill function called with requestId:", uint256(_requestId));
+//     emit DebugLog("Response received:", uint256(keccak256(abi.encodePacked(_response))));  
+
+
+//     apiResponses[_requestId] = _response;
+
+//     emit RequestVolume(_requestId, _response);
+
+//     emit DebugLog("Stored response for requestId:", uint256(_requestId));
+
+//     if (_requestId == jobId) {
+//         emit DebugLog("Request ID matches job ID, processing response:", uint256(_requestId));
+
+//         teamNameFromAPI = _response;  
+ 
+//         emit DebugLog("Team name from API:", uint256(keccak256(abi.encodePacked(teamNameFromAPI)))); 
+//         validateTeamSelection();
+//     } else {
+//         emit DebugLog("Request ID does not match job ID:", uint256(_requestId));
+//     }
+// }
     /**
      * Function to allow the user to select between two teams (Option A or Option B)
      */
@@ -205,3 +393,4 @@ contract APIConsumer is ChainlinkClient, ConfirmedOwner {
 }
 
 }
+
